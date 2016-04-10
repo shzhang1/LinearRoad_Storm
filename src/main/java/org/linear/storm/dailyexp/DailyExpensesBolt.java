@@ -70,17 +70,7 @@ public class DailyExpensesBolt  extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-//      _collector.emit(tuple, new Values(tuple.getString(0) + "!!!"));
-//      _collector.ack(tuple);
-    	
-//    	public long time; //A timestamp measured in seconds since the start of the simulation
-//    	public int vid; //vehicle identifier
-//    	public int qid; //Query ID
-//    	public byte xWay; //Express way number 0 .. 9
-//    	public int day; //The day for which the daily expenditure value is needed
-    	    
-    	//_collector.emit("daily_exp", new Values(time, vid, xway, qid, day));
-    	
+
     	ExpenditureEvent expEvt = new ExpenditureEvent(); 
     	expEvt.time = tuple.getLong(0);
     	expEvt.vid = tuple.getInteger(1);
