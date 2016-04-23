@@ -36,30 +36,15 @@ public class LinearRoadTopology {
     TopologyBuilder builder = new TopologyBuilder();
 
     builder.setSpout("inputEventInjector", new InputEventInjectorSpout(), 1);//For the moment we keep just one input injector spout
+    builder.setBolt("segstatBolt", new SegStatBolt(), 1).shuffleGrouping("inputEventInjector", "position_report");
+    builder.setBolt("accidentBolt", new AccidentDetectionBolt(), 1).shuffleGrouping("inputEventInjector", "position_report");
 
-    builder.setBolt("segstatBolt", new SegStatBolt(), 1)
-            .shuffleGrouping("inputEventInjector", "position_report");
+    builder.setBolt("tollBolt", new TollBolt(), 1).shuffleGrouping("inputEventInjector", "position_report").
+            shuffleGrouping("segstatBolt","nov_event").shuffleGrouping("segstatBolt","lav_event").shuffleGrouping("accidentBolt", "accident_event");
 
-    builder.setBolt("accidentBolt", new AccidentDetectionBolt(), 1)
-            .shuffleGrouping("inputEventInjector", "position_report");
-
-    builder.setBolt("tollBolt", new TollBolt(), 1)
-            .shuffleGrouping("inputEventInjector", "position_report")
-            .shuffleGrouping("segstatBolt","nov_event")
-            .shuffleGrouping("segstatBolt","lav_event")
-            .shuffleGrouping("accidentBolt", "accident_event");
-
-    builder.setBolt("accbalanceBolt", new AccBalanceBolt(), 1)
-            .shuffleGrouping("inputEventInjector", "accbal_report")
-            .shuffleGrouping("tollBolt", "toll_event");
-
-    builder.setBolt("dailyExpBolt", new DailyExpensesBolt(), 1)
-            .shuffleGrouping("inputEventInjector", "daily_exp");
-
-    builder.setBolt("outputBolt", new OutputBolt(), 1)
-            .shuffleGrouping("tollBolt", "toll_event")
-            .shuffleGrouping("accbalanceBolt", "accbalance_event")
-            .shuffleGrouping("dailyExpBolt", "dailyexp_events");
+    builder.setBolt("accbalanceBolt", new AccBalanceBolt(), 1).shuffleGrouping("inputEventInjector", "accbal_report").shuffleGrouping("tollBolt", "toll_event");
+    builder.setBolt("dailyExpBolt", new DailyExpensesBolt(), 1).shuffleGrouping("inputEventInjector", "daily_exp");
+    builder.setBolt("outputBolt", new OutputBolt(), 1).shuffleGrouping("tollBolt", "toll_event").shuffleGrouping("accbalanceBolt", "accbalance_event").shuffleGrouping("dailyExpBolt", "dailyexp_events");
 
     Config conf = new Config();
     conf.setDebug(false);
